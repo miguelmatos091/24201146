@@ -1,0 +1,263 @@
+# Dicionário de Dados — Sistema de Aeroporto
+
+**Disciplina:** Modelagem de Dados
+**Aluno:** Miguel Matos de Sá
+**Curso:** Ciência da Computação — IDP
+**Data:** Agosto/2026
+
+---
+
+## 1. Visão Geral do Sistema
+
+O Sistema de Aeroporto tem como objetivo controlar as operações básicas de um aeroporto: aeroportos, companhias aéreas, aeronaves, voos, portões de embarque, passageiros, reservas, bilhetes, bagagens e funcionários. O modelo relacional é composto por 10 tabelas, descritas a seguir, com seus atributos, tipos de dados, restrições, relacionamentos e regras de negócio.
+
+---
+
+## 2. Convenções utilizadas
+
+| Sigla | Significado |
+|---|---|
+| PK | Primary Key (Chave Primária) |
+| FK | Foreign Key (Chave Estrangeira) |
+| NN | NOT NULL (obrigatório) |
+| N | Permite NULL (opcional) |
+| AI | Auto Increment |
+
+---
+
+## 3. Tabelas
+
+### 3.1 AEROPORTO
+**Descrição:** Armazena os aeroportos que fazem parte do sistema, sejam eles de origem ou destino de voos.
+
+| Campo | Tipo | Tamanho | Obrigatoriedade | PK | FK | Valor Padrão | Domínio/Regra | Exemplo |
+|---|---|---|---|---|---|---|---|---|
+| id_aeroporto | INT | — | NN | PK | — | AUTO_INCREMENT | Identificador único | 1 |
+| codigo_iata | CHAR | 3 | NN | — | — | — | 3 letras maiúsculas, único | "BSB" |
+| nome | VARCHAR | 100 | NN | — | — | — | — | "Aeroporto Internacional de Brasília" |
+| cidade | VARCHAR | 60 | NN | — | — | — | — | "Brasília" |
+| estado | CHAR | 2 | NN | — | — | — | Sigla UF | "DF" |
+| pais | VARCHAR | 60 | NN | — | — | "Brasil" | — | "Brasil" |
+| fuso_horario | VARCHAR | 40 | N | — | — | "America/Sao_Paulo" | Nome de fuso IANA | "America/Sao_Paulo" |
+
+**Índices/Restrições:** UNIQUE (`codigo_iata`); índice em `cidade` para buscas.
+
+---
+
+### 3.2 COMPANHIA_AEREA
+**Descrição:** Empresas que operam voos no sistema.
+
+| Campo | Tipo | Tamanho | Obrigatoriedade | PK | FK | Valor Padrão | Domínio/Regra | Exemplo |
+|---|---|---|---|---|---|---|---|---|
+| id_companhia | INT | — | NN | PK | — | AUTO_INCREMENT | — | 1 |
+| nome | VARCHAR | 80 | NN | — | — | — | — | "LATAM Airlines" |
+| codigo_iata | CHAR | 2 | NN | — | — | — | Único | "LA" |
+| pais_origem | VARCHAR | 60 | NN | — | — | — | — | "Chile" |
+| ativa | BOOLEAN | — | NN | — | — | TRUE | TRUE/FALSE | TRUE |
+
+**Índices/Restrições:** UNIQUE (`codigo_iata`).
+
+---
+
+### 3.3 AERONAVE
+**Descrição:** Aeronaves pertencentes/operadas por uma companhia aérea.
+
+| Campo | Tipo | Tamanho | Obrigatoriedade | PK | FK | Valor Padrão | Domínio/Regra | Exemplo |
+|---|---|---|---|---|---|---|---|---|
+| id_aeronave | INT | — | NN | PK | — | AUTO_INCREMENT | — | 1 |
+| prefixo | VARCHAR | 10 | NN | — | — | — | Único (matrícula) | "PR-XYZ" |
+| modelo | VARCHAR | 40 | NN | — | — | — | — | "Airbus A320" |
+| capacidade_passageiros | SMALLINT | — | NN | — | — | — | > 0 | 180 |
+| id_companhia | INT | — | NN | — | FK → COMPANHIA_AEREA | — | — | 1 |
+| ano_fabricacao | SMALLINT | — | N | — | — | — | Entre 1950 e ano atual | 2018 |
+
+**Índices/Restrições:** UNIQUE (`prefixo`); FK `id_companhia` com `ON DELETE RESTRICT`.
+
+---
+
+### 3.4 PORTAO_EMBARQUE
+**Descrição:** Portões de embarque de cada aeroporto, usados pelos voos.
+
+| Campo | Tipo | Tamanho | Obrigatoriedade | PK | FK | Valor Padrão | Domínio/Regra | Exemplo |
+|---|---|---|---|---|---|---|---|---|
+| id_portao | INT | — | NN | PK | — | AUTO_INCREMENT | — | 1 |
+| id_aeroporto | INT | — | NN | — | FK → AEROPORTO | — | — | 1 |
+| numero | VARCHAR | 10 | NN | — | — | — | Único por aeroporto | "A12" |
+| terminal | VARCHAR | 20 | N | — | — | — | — | "Terminal 1" |
+
+**Índices/Restrições:** UNIQUE (`id_aeroporto`, `numero`).
+
+---
+
+### 3.5 VOO
+**Descrição:** Representa cada voo programado, ligando aeroporto de origem, destino, aeronave, companhia e portão.
+
+| Campo | Tipo | Tamanho | Obrigatoriedade | PK | FK | Valor Padrão | Domínio/Regra | Exemplo |
+|---|---|---|---|---|---|---|---|---|
+| id_voo | INT | — | NN | PK | — | AUTO_INCREMENT | — | 1 |
+| numero_voo | VARCHAR | 8 | NN | — | — | — | Formato: 2 letras + 3-4 dígitos | "LA3456" |
+| id_companhia | INT | — | NN | — | FK → COMPANHIA_AEREA | — | — | 1 |
+| id_aeronave | INT | — | NN | — | FK → AERONAVE | — | — | 1 |
+| id_aeroporto_origem | INT | — | NN | — | FK → AEROPORTO | — | Diferente do destino | 1 |
+| id_aeroporto_destino | INT | — | NN | — | FK → AEROPORTO | — | Diferente da origem | 2 |
+| id_portao | INT | — | N | — | FK → PORTAO_EMBARQUE | — | Pertence ao aeroporto de origem | 5 |
+| data_hora_partida | DATETIME | — | NN | — | — | — | — | "2026-09-10 08:30:00" |
+| data_hora_chegada | DATETIME | — | NN | — | — | — | Posterior à partida | "2026-09-10 10:15:00" |
+| status | VARCHAR | 20 | NN | — | — | "Programado" | {Programado, Embarcando, Em voo, Pousado, Cancelado, Atrasado} | "Programado" |
+
+**Índices/Restrições:** UNIQUE (`numero_voo`, `data_hora_partida`); CHECK (`data_hora_chegada` > `data_hora_partida`); CHECK (`id_aeroporto_origem` ≠ `id_aeroporto_destino`); índice em (`id_aeroporto_origem`, `data_hora_partida`).
+
+---
+
+### 3.6 PASSAGEIRO
+**Descrição:** Pessoas que compram passagens/reservam voos.
+
+| Campo | Tipo | Tamanho | Obrigatoriedade | PK | FK | Valor Padrão | Domínio/Regra | Exemplo |
+|---|---|---|---|---|---|---|---|---|
+| id_passageiro | INT | — | NN | PK | — | AUTO_INCREMENT | — | 1 |
+| nome_completo | VARCHAR | 120 | NN | — | — | — | — | "João Pedro Alves" |
+| documento | VARCHAR | 20 | NN | — | — | — | CPF ou passaporte, único | "123.456.789-00" |
+| data_nascimento | DATE | — | NN | — | — | — | Anterior à data atual | "1995-04-12" |
+| email | VARCHAR | 100 | N | — | — | — | Formato de e-mail válido | "joao@email.com" |
+| telefone | VARCHAR | 20 | N | — | — | — | — | "+55(61)99999-9999" |
+
+**Índices/Restrições:** UNIQUE (`documento`).
+
+---
+
+### 3.7 RESERVA
+**Descrição:** Registra a reserva de um passageiro em um voo específico.
+
+| Campo | Tipo | Tamanho | Obrigatoriedade | PK | FK | Valor Padrão | Domínio/Regra | Exemplo |
+|---|---|---|---|---|---|---|---|---|
+| id_reserva | INT | — | NN | PK | — | AUTO_INCREMENT | — | 1 |
+| id_passageiro | INT | — | NN | — | FK → PASSAGEIRO | — | — | 1 |
+| id_voo | INT | — | NN | — | FK → VOO | — | — | 1 |
+| data_reserva | DATETIME | — | NN | — | — | CURRENT_TIMESTAMP | — | "2026-08-01 14:22:00" |
+| status_reserva | VARCHAR | 20 | NN | — | — | "Pendente" | {Pendente, Confirmada, Cancelada} | "Confirmada" |
+| classe | VARCHAR | 15 | NN | — | — | "Econômica" | {Econômica, Executiva, Primeira Classe} | "Econômica" |
+
+**Índices/Restrições:** UNIQUE (`id_passageiro`, `id_voo`) — impede reserva duplicada do mesmo passageiro no mesmo voo.
+
+---
+
+### 3.8 BILHETE
+**Descrição:** Bilhete emitido a partir de uma reserva confirmada.
+
+| Campo | Tipo | Tamanho | Obrigatoriedade | PK | FK | Valor Padrão | Domínio/Regra | Exemplo |
+|---|---|---|---|---|---|---|---|---|
+| id_bilhete | INT | — | NN | PK | — | AUTO_INCREMENT | — | 1 |
+| id_reserva | INT | — | NN | — | FK → RESERVA (UNIQUE) | — | 1 reserva = 1 bilhete | 1 |
+| codigo_bilhete | VARCHAR | 13 | NN | — | — | — | Único (padrão numérico IATA) | "0576412345678" |
+| assento | VARCHAR | 4 | NN | — | — | — | Ex.: número + letra | "14C" |
+| valor | DECIMAL | 10,2 | NN | — | — | — | ≥ 0 | 850.00 |
+| data_emissao | DATETIME | — | NN | — | — | CURRENT_TIMESTAMP | — | "2026-08-01 14:25:00" |
+
+**Índices/Restrições:** UNIQUE (`id_reserva`); UNIQUE (`codigo_bilhete`); UNIQUE (`id_voo` via reserva, `assento`) — controlada por regra de aplicação, já que `id_voo` não é atributo direto do BILHETE.
+
+---
+
+### 3.9 BAGAGEM
+**Descrição:** Bagagens despachadas associadas a um bilhete.
+
+| Campo | Tipo | Tamanho | Obrigatoriedade | PK | FK | Valor Padrão | Domínio/Regra | Exemplo |
+|---|---|---|---|---|---|---|---|---|
+| id_bagagem | INT | — | NN | PK | — | AUTO_INCREMENT | — | 1 |
+| id_bilhete | INT | — | NN | — | FK → BILHETE | — | — | 1 |
+| codigo_etiqueta | VARCHAR | 12 | NN | — | — | — | Único | "BR123456789" |
+| peso_kg | DECIMAL | 5,2 | NN | — | — | — | 0 < peso ≤ 32 | 23.50 |
+| tipo | VARCHAR | 15 | NN | — | — | "Despachada" | {Despachada, Mão} | "Despachada" |
+
+**Índices/Restrições:** UNIQUE (`codigo_etiqueta`); CHECK (`peso_kg` ≤ 32).
+
+---
+
+### 3.10 FUNCIONARIO
+**Descrição:** Funcionários lotados em um aeroporto (atendimento, operações, segurança etc.).
+
+| Campo | Tipo | Tamanho | Obrigatoriedade | PK | FK | Valor Padrão | Domínio/Regra | Exemplo |
+|---|---|---|---|---|---|---|---|---|
+| id_funcionario | INT | — | NN | PK | — | AUTO_INCREMENT | — | 1 |
+| nome_completo | VARCHAR | 120 | NN | — | — | — | — | "Maria Souza" |
+| cargo | VARCHAR | 40 | NN | — | — | — | Ex.: Atendente, Piloto, Comissário, Agente de Segurança | "Atendente de Check-in" |
+| id_aeroporto | INT | — | NN | — | FK → AEROPORTO | — | Lotação atual | 1 |
+| data_admissao | DATE | — | NN | — | — | — | — | "2022-03-01" |
+| matricula | VARCHAR | 15 | NN | — | — | — | Única | "FUN-00123" |
+
+**Índices/Restrições:** UNIQUE (`matricula`).
+
+---
+
+## 4. Relacionamentos entre as Tabelas
+
+| Relacionamento | Cardinalidade | Descrição |
+|---|---|---|
+| COMPANHIA_AEREA → AERONAVE | 1:N | Uma companhia possui várias aeronaves |
+| COMPANHIA_AEREA → VOO | 1:N | Uma companhia opera vários voos |
+| AERONAVE → VOO | 1:N | Uma aeronave é usada em vários voos (em datas diferentes) |
+| AEROPORTO → VOO (origem) | 1:N | Um aeroporto é origem de vários voos |
+| AEROPORTO → VOO (destino) | 1:N | Um aeroporto é destino de vários voos |
+| AEROPORTO → PORTAO_EMBARQUE | 1:N | Um aeroporto possui vários portões |
+| PORTAO_EMBARQUE → VOO | 1:N | Um portão é utilizado por vários voos (em horários distintos) |
+| AEROPORTO → FUNCIONARIO | 1:N | Um aeroporto possui vários funcionários lotados |
+| PASSAGEIRO → RESERVA | 1:N | Um passageiro pode ter várias reservas |
+| VOO → RESERVA | 1:N | Um voo possui várias reservas |
+| RESERVA → BILHETE | 1:1 | Cada reserva confirmada gera exatamente um bilhete |
+| BILHETE → BAGAGEM | 1:N | Um bilhete pode ter uma ou mais bagagens despachadas |
+
+**Relacionamento N:N implícito:** PASSAGEIRO e VOO se relacionam de forma N:N (um passageiro voa em vários voos; um voo tem vários passageiros), resolvido pela tabela associativa **RESERVA**.
+
+---
+
+## 5. Regras de Negócio
+
+1. **Unicidade de reserva:** um mesmo passageiro não pode ter mais de uma reserva ativa para o mesmo voo (garantido pela UNIQUE `id_passageiro` + `id_voo` em RESERVA).
+2. **Emissão condicionada de bilhete:** um bilhete só pode ser emitido (inserido em BILHETE) quando a reserva correspondente estiver com `status_reserva = 'Confirmada'`.
+3. **Capacidade da aeronave:** a quantidade de bilhetes emitidos para um voo não pode ultrapassar a `capacidade_passageiros` da aeronave vinculada a esse voo.
+4. **Consistência de horários:** a `data_hora_chegada` de um voo deve ser sempre posterior à `data_hora_partida` (validado por CHECK constraint).
+5. **Portão compatível com origem:** o `id_portao` vinculado a um voo deve pertencer ao mesmo aeroporto informado em `id_aeroporto_origem`.
+6. **Limite de bagagem:** cada item em BAGAGEM não pode exceder 32 kg; despachos acima do limite devem ser tratados como excesso de bagagem (fora do escopo deste modelo).
+7. **Origem e destino distintos:** um voo não pode ter o mesmo aeroporto como origem e destino.
+
+---
+
+## 6. Índices e Restrições — Resumo Geral
+
+| Tabela | Tipo | Campo(s) | Finalidade |
+|---|---|---|---|
+| AEROPORTO | UNIQUE | codigo_iata | Evitar códigos IATA duplicados |
+| COMPANHIA_AEREA | UNIQUE | codigo_iata | Evitar códigos duplicados |
+| AERONAVE | UNIQUE | prefixo | Identificação única da aeronave |
+| PORTAO_EMBARQUE | UNIQUE | (id_aeroporto, numero) | Evitar portões duplicados no mesmo aeroporto |
+| VOO | UNIQUE | (numero_voo, data_hora_partida) | Evitar duplicidade do mesmo voo na mesma data |
+| VOO | CHECK | data_hora_chegada > data_hora_partida | Consistência temporal |
+| VOO | CHECK | id_aeroporto_origem ≠ id_aeroporto_destino | Consistência de rota |
+| PASSAGEIRO | UNIQUE | documento | Evitar cadastro duplicado |
+| RESERVA | UNIQUE | (id_passageiro, id_voo) | Evitar reserva duplicada |
+| BILHETE | UNIQUE | id_reserva | Garantir relação 1:1 com RESERVA |
+| BILHETE | UNIQUE | codigo_bilhete | Identificação única do bilhete |
+| BAGAGEM | UNIQUE | codigo_etiqueta | Rastreio único da bagagem |
+| BAGAGEM | CHECK | peso_kg ≤ 32 | Limite de peso por bagagem |
+| FUNCIONARIO | UNIQUE | matricula | Identificação única do funcionário |
+
+**Índices de performance recomendados:**
+- `VOO(id_aeroporto_origem, data_hora_partida)` — consultas de voos por aeroporto e data.
+- `RESERVA(id_voo)` — listagem de passageiros por voo.
+- `AERONAVE(id_companhia)` — listagem de frota por companhia.
+
+---
+
+## 7. Diagrama de Relacionamento (resumo textual)
+
+```
+AEROPORTO ──1:N── PORTAO_EMBARQUE
+AEROPORTO ──1:N── FUNCIONARIO
+AEROPORTO ──1:N── VOO (origem)
+AEROPORTO ──1:N── VOO (destino)
+COMPANHIA_AEREA ──1:N── AERONAVE
+COMPANHIA_AEREA ──1:N── VOO
+AERONAVE ──1:N── VOO
+PORTAO_EMBARQUE ──1:N── VOO
+VOO ──1:N── RESERVA ──N:1── PASSAGEIRO
+RESERVA ──1:1── BILHETE ──1:N── BAGAGEM
+```
