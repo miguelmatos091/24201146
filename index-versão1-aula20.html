@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alunos — Versão 1 (regra no JavaScript)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: .5rem .75rem; text-align: left; }
+    th:nth-child(2), td:nth-child(2) { text-align: right; }
+    th { background: #f3f3f3; }
+    .aprovado  { color: #0a7a2f; font-weight: 600; }
+    .reprovado { color: #b3261e; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <h1>Lista de alunos</h1>
+  <p id="mensagem">Carregando...</p>
+  <table>
+    <thead><tr><th>Aluno</th><th>Nota</th><th>Status</th></tr></thead>
+    <tbody id="corpo"></tbody>
+  </table>
+  <script src="js/app.js"></script>
+</body>
+</html>
