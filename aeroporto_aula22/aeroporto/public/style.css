@@ -1,0 +1,19 @@
+* { box-sizing: border-box; }
+body { font-family: system-ui, sans-serif; margin: 0; background: #f4f6f8; color: #1d2733; }
+.topo { background: #0b3d6b; color: #fff; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; }
+.topo h1 { margin: 0; font-size: 1.2rem; }
+.topo nav a { color: #fff; margin-left: 16px; text-decoration: none; }
+main { max-width: 900px; margin: 24px auto; padding: 0 16px; }
+table { width: 100%; border-collapse: collapse; background: #fff; }
+th, td { padding: 8px 10px; border-bottom: 1px solid #dde3ea; text-align: left; }
+th { background: #e8eef4; }
+.acoes { display: flex; gap: 12px; align-items: center; }
+.acoes form { margin: 0; }
+label { display: block; margin-bottom: 12px; font-weight: 600; }
+input, select { display: block; width: 100%; max-width: 360px; padding: 8px; margin-top: 4px; font: inherit; }
+.botao, button { background: #0b3d6b; color: #fff; border: 0; padding: 8px 14px; border-radius: 4px; text-decoration: none; cursor: pointer; font: inherit; display: inline-block; }
+button.perigo { background: #b3261e; padding: 4px 10px; }
+.aviso { padding: 10px 14px; border-radius: 4px; }
+.aviso.sucesso { background: #d9f2e0; color: #14532d; }
+.aviso.erro { background: #fbe0de; color: #7a1710; list-style-position: inside; }
+.rodape { text-align: center; color: #5c6b7a; padding: 16px; }
