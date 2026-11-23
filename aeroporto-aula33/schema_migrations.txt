@@ -1,0 +1,11 @@
+Saída esperada de:  SELECT * FROM schema_migrations;   (após `php migrate.php up` com tudo aplicado)
+SUBSTITUA pela saída real do seu banco (as datas serão as do seu computador).
+
++----------------------------+---------------------+
+| version                    | aplicada_em         |
++----------------------------+---------------------+
+| 001_baseline               | <data e hora>       |
+| 002_add_portao_embarque    | <data e hora>       |
+| 003_add_aeroporto_destino  | <data e hora>       |
+| 004_drop_destino           | <data e hora>       |
++----------------------------+---------------------+
